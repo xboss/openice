@@ -91,7 +91,6 @@ function _M:frontend_loop()
                 self.is_frontend_close = true
                 return
             end
-            -- ngx.log(ngx.DEBUG, "------", raw, " ", str_len(raw))
             if str_len(raw) < 2 then
                 ngx.log(ngx.ERR, "frontend_loop msg len error in auth phase")
                 self.is_frontend_close = true
@@ -121,7 +120,6 @@ function _M:frontend_loop()
                 self.is_frontend_close = true
                 return
             end
-            -- ngx.log(ngx.DEBUG, "------", raw, " ", str_len(raw))
 
             if str_len(raw) < 4 then
                 ngx.log(ngx.ERR, "frontend_loop msg len error in cmd phase")
@@ -149,7 +147,6 @@ function _M:frontend_loop()
                     self.is_frontend_close = true
                     return
                 end
-                ngx.log(ngx.DEBUG, "------ ip ", raw, " ", str_len(raw))
                 local ip1, ip2, ip3, ip4 = str_byte(raw, 1, 4)
                 target_host = ip1 .. "." .. ip2 .. "." .. ip3 .. "." .. ip4
                 local port1, port2 = str_byte(raw, 5, 6)
@@ -162,7 +159,6 @@ function _M:frontend_loop()
                     self.is_frontend_close = true
                     return
                 end
-                -- ngx.log(ngx.DEBUG, "------ domain ", raw, " ", str_len(raw))
                 local domain_len = str_byte(raw)
                 raw, err = self.frontend_sock:receive(domain_len + 2)
                 if not raw then
@@ -262,9 +258,7 @@ function _M:start()
 
     self.is_backend_close = true
     if self.backend_loop_thread then
-        ngx.log(ngx.DEBUG, "------ kill backend_loop_thread 111")
         ngx.thread.kill(self.backend_loop_thread)
-        ngx.log(ngx.DEBUG, "------ kill backend_loop_thread 222")
     end
 
     -- 安全关闭连接
