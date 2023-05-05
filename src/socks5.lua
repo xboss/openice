@@ -150,7 +150,7 @@ function _M:frontend_loop()
                 local ip1, ip2, ip3, ip4 = str_byte(raw, 1, 4)
                 target_host = ip1 .. "." .. ip2 .. "." .. ip3 .. "." .. ip4
                 local port1, port2 = str_byte(raw, 5, 6)
-                target_port = bxor(lshift(port1, 8), port2)
+                target_port = bor(lshift(port1, 8), port2)
             elseif addr_type == 0x03 then
                 -- domain
                 raw, err = self.frontend_sock:receive(1)
@@ -169,7 +169,7 @@ function _M:frontend_loop()
                 ngx.log(ngx.DEBUG, "------ domain ", raw, " ", str_len(raw))
                 target_host = str_sub(raw, 1, domain_len)
                 local port1, port2 = str_byte(raw, domain_len + 1, domain_len + 2)
-                target_port = bxor(lshift(port1, 8), port2)
+                target_port = bor(lshift(port1, 8), port2)
             elseif addr_type == 0x04 then
                 ngx.log(ngx.ERR, "frontend_loop unsupported IP V6 error in cmd phase ", str_char(addr_type))
                 self.is_frontend_close = true
