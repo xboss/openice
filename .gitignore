@@ -1,8 +1,10 @@
 .DS_Store
+or_dir
 or
 .vscode
 *.log
 *.sh
+src/config*
 
 # Compiled Lua sources
 luac.out
