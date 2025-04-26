@@ -56,37 +56,11 @@ local function local_loop()
         end
         
         local bytes, err = helper.pack_send(remote_sock, raw, aes_128_cbc)
-        if bytes <= 0 then
+        if not bytes then
             ngx.log(ngx.ERR, "Failed to send to remote ", err)
             running = false
             break
         end
-
-        -- local encrypted = raw
-        -- if aes_128_cbc then
-        --     -- encrypt
-        --     encrypted, err = aes_128_cbc:encrypt(raw)
-        --     if not encrypted then
-        --         ngx.log(ngx.ERR, "Failed to encrypt ", err)
-        --         running = false
-        --         break
-        --     end
-        -- end
-        -- -- pack
-        -- local msg = helper.pack(encrypted)
-        -- if not msg then
-        --     ngx.log(ngx.ERR, "Invalid msg from local")
-        --     running = false
-        --     break
-        -- end
-        -- -- send to remote
-        -- local bytes, err = remote_sock:send(msg)
-        -- if bytes <= 0 then
-        --     ngx.log(ngx.ERR, "Failed to send to remote ", err)
-        --     running = false
-        --     break
-        -- end
-
     end
 end
 
@@ -104,8 +78,6 @@ local function remote_loop()
         end
 
         recv_buf = (recv_buf or "") .. raw
-        -- local recv_buf_len = #recv_buf
-        -- ngx.log(ngx.DEBUG, "remote loop recv_buf_len ", recv_buf_len )
 
         -- unpack
         local ok
@@ -122,7 +94,7 @@ local function remote_loop()
             helper.print_hex("remote loop plain ", plain)
             -- send to local
             local bytes, err = local_sock:send(plain)
-            if bytes <= 0 then
+            if not bytes then
                 ngx.log(ngx.ERR, "Failed to send to local ", err)
                 return false
             end
@@ -134,57 +106,6 @@ local function remote_loop()
             running = false
             break
         end
-
-        -- -- unpack
-        -- local remain_len = helper.unpack_header(recv_buf)
-        -- if remain_len < 4 or remain_len > r_max_len * 10 then
-        --     ngx.log(ngx.ERR, "Invalid msg length from remote len: ", remain_len)
-        --     running = false
-        --     break
-        -- end
-        -- 
-        -- ngx.log(ngx.DEBUG, "remote loop remain_len ", remain_len)
-
-        -- local payload = nil
-        -- if remain_len + 4 == recv_buf_len then
-        --     payload = string.sub(recv_buf, 5, 4 + remain_len)
-        --     recv_buf = ""
-        -- elseif remain_len + 4 < recv_buf_len then
-        --     payload = string.sub(recv_buf, 5, 4 + remain_len)
-        --     recv_buf = string.sub(recv_buf, 5 + remain_len, recv_buf_len)
-        --     ngx.log(ngx.DEBUG, "remote loop more ", #payload, " ", #recv_buf, " ", recv_buf_len)
-
-        --     assert(4 + #payload + #recv_buf == recv_buf_len) -- TODO: delete
-        -- elseif remain_len + 4 > recv_buf_len then
-        --     ngx.log(ngx.DEBUG, "remote loop pending ", remain_len, " ", recv_buf_len)
-        --     goto remote_loop_continue
-        -- end
-
-        -- ngx.log(ngx.DEBUG, "remote loop payload ", #payload)
-
-        -- local plain = payload
-        -- if aes_128_cbc then
-        --     -- decrypt
-        --     plain, err = aes_128_cbc:decrypt(payload)
-        --     if not plain then
-        --         ngx.log(ngx.ERR, "Failed to decrypt ", err)
-        --         running = false
-        --         break
-        --     end
-        -- end
-
-        -- helper.print_hex("remote loop plain ", plain)
-
-        -- -- send to local
-        -- local bytes, err = local_sock:send(plain)
-        -- if bytes <= 0 then
-        --     ngx.log(ngx.ERR, "Failed to send to local ", err)
-        --     running = false
-        --     break
-        -- end
-
-        -- ngx.log(ngx.DEBUG, "remote loop send bytes ", bytes)
-
     end
     remote_thread = nil
 end
