@@ -68,6 +68,43 @@ function _M.pack_send(sock, raw, aes)
     return sock:send(msg)
 end
 
+function _M.unpack(msg, did_unpack_cb)
+    local pending_buf = msg
+
+    ::more_unpack::
+    ngx.log(ngx.DEBUG, "unpack pending_buf ", #pending_buf)
+
+    local pending_buf_len = #pending_buf
+    local remain_len = _M.unpack_header(pending_buf)
+    if remain_len < 4 or remain_len > 10240000 then -- TODO: Magic number
+        ngx.log(ngx.ERR, "Invalid msg length from remote len: ", remain_len)
+        return false
+    end
+
+    ngx.log(ngx.DEBUG, "unpack remain_len ", remain_len)
+
+    local payload = nil
+    if remain_len + 4 == pending_buf_len then
+        payload = string.sub(pending_buf, 5, 4 + remain_len)
+        if not did_unpack_cb(payload) then
+            return false
+        end
+        return true
+    elseif remain_len + 4 < pending_buf_len then
+        payload = string.sub(pending_buf, 5, 4 + remain_len)
+        pending_buf = string.sub(pending_buf, 5 + remain_len, pending_buf_len)
+        ngx.log(ngx.DEBUG, "unpack more ", #payload, " ", #pending_buf)
+        if not did_unpack_cb(payload) then
+            return false
+        end
+        assert(4 + #payload + #pending_buf == pending_buf_len) -- TODO: delete
+        goto more_unpack
+    end
+    -- remain_len + 4 > pending_buf_len 
+    ngx.log(ngx.DEBUG, "unpack pending ", remain_len, " ", pending_buf_len)
+    return true, pending_buf 
+end
+
 function _M.print_hex(prefix, data)
     local hex = data:gsub(".", function(c)
         return string.format("%02X ", string.byte(c))
