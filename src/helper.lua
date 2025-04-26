@@ -97,7 +97,7 @@ function _M.unpack(msg, did_unpack_cb)
         if not did_unpack_cb(payload) then
             return false
         end
-        assert(4 + #payload + #pending_buf == pending_buf_len) -- TODO: delete
+        -- assert(4 + #payload + #pending_buf == pending_buf_len) -- TODO: delete
         goto more_unpack
     end
     -- remain_len + 4 > pending_buf_len 

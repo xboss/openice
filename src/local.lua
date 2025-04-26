@@ -91,7 +91,7 @@ local function remote_loop()
                     return false
                 end
             end
-            helper.print_hex("remote loop plain ", plain)
+            -- helper.print_hex("remote loop plain ", plain)
             -- send to local
             local bytes, err = local_sock:send(plain)
             if not bytes then

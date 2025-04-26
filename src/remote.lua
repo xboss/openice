@@ -86,7 +86,7 @@ local function socks5(data)
             -- goto socks5_continue
         elseif phase == 1 then
             -- connect
-            helper.print_hex("connect start ", data)
+            -- helper.print_hex("connect start ", data)
             if #data < 7 then
                 send_socks5_resp(string.char(0x05) .. string.char(0x01) .. string.char(0x00) .. string.char(0x01) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00) .. string.char(0x00))
                 return false
@@ -165,7 +165,7 @@ local function socks5(data)
             -- goto socks5_continue
         elseif phase == 2 then
             -- data
-            helper.print_hex("data data ", data)
+            -- helper.print_hex("data data ", data)
             local bytes, err = target_sock:send(data)
             if not bytes then
                 -- ngx.log(ngx.ERR, "Failed to send data ", err)
