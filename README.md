@@ -1,5 +1,5 @@
 # Openice
-Open eyes to the world.
+Open your eyes.
 
 ## Prepares
 Install [OpenResty](https://github.com/openresty/openresty).
